@@ -1,0 +1,25 @@
+{
+  "name": "zenn.dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prettier": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/9sako6/zenn.dev.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/9sako6/zenn.dev/issues"
+  },
+  "homepage": "https://github.com/9sako6/zenn.dev#readme",
+  "devDependencies": {
+    "prettier": "^2.6.1"
+  },
+  "dependencies": {
+    "zenn-cli": "^0.1.108"
+  }
+}
