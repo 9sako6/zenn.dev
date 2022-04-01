@@ -197,12 +197,12 @@ describe('sample test', () => {
 });
 ```
 
-## 今後の課題
+# 今後の課題
 
 テストコード内にて `qraphql.query()` でハンドラを定義できず `payload`
 しか渡せない点を解決したいです。フィードバックお待ちしております。
 
-## 参考
+# 参考
 
 1. https://glebbahmutov.com/blog/mock-network-from-server/
 2. https://docs.cypress.io/guides/tooling/plugins-guide
