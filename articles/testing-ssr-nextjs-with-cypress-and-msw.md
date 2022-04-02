@@ -6,8 +6,7 @@ topics: ["nextjs", "cypress", "msw", "test"] # タグ。["markdown", "rust", "aw
 published: true # 公開設定（falseにすると下書き）
 ---
 
-`getServerSideProps()` で SSR する場合、`cy.intercept()` でスタブを用意することができません。
-`cy.intercept()` で作れるスタブは、ブラウザからのリクエスト用だけです。`getServerSideProps()` は Node プロセスで実行されるため、そもそも傍受することができません。
+`getServerSideProps()` で SSR する場合、`cy.intercept()` でスタブを用意することができません。`cy.intercept()` で作れるスタブは、ブラウザからのリクエスト用だけです。`getServerSideProps()` は Node プロセスで実行されるため、そもそも傍受することができません。
 
 本記事では、Cypress でテストごとにハンドラを登録し、SSR のためのスタブを用意する 1 つの方法を提案します。（あまり情報がないため、他の皆さんはどうやってテストしているか気になります。）
 
