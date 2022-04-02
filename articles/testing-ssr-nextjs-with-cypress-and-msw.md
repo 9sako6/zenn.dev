@@ -7,14 +7,11 @@ published: true # 公開設定（falseにすると下書き）
 ---
 
 `getServerSideProps()` で SSR する場合、`cy.intercept()` でスタブを用意することができません。
-`cy.intercept()` で作れるスタブは、ブラウザからのリクエスト用だけです。`getServerSideProps()` は Node
-プロセスで実行されるため、そもそも傍受することができません。
+`cy.intercept()` で作れるスタブは、ブラウザからのリクエスト用だけです。`getServerSideProps()` は Node プロセスで実行されるため、そもそも傍受することができません。
 
-本記事では、Cypress でテストごとにハンドラを登録し、SSR のためのスタブを用意する 1 つの方法を提案します。
-（あまり情報がないため、他の皆さんはどうやってテストしているか気になります。）
+本記事では、Cypress でテストごとにハンドラを登録し、SSR のためのスタブを用意する 1 つの方法を提案します。（あまり情報がないため、他の皆さんはどうやってテストしているか気になります。）
 
-なお、Cypress 公式が SSR 用のスタブを作る方法を開発していたようですが、2022 年 3 月 12 日現在は半年ほどメンテされておらず、npm
-パッケージとしても未公開の状態なので今回は使用を見送りました。
+なお、Cypress 公式が SSR 用のスタブを作る方法を開発していたようですが、2022 年 3 月 12 日現在は半年ほどメンテされておらず、npm パッケージとしても未公開の状態なので今回は使用を見送りました。
 
 https://github.com/cypress-io/cypress-mock-ssr
 
@@ -41,16 +38,12 @@ $ yarn run msw --version
 
 ## 1. Node プロセスで MSW を起動する
 
-`getServerSideProps()` 用のスタブを用意するためには、ブラウザの外で動く Node.js のプロセスから MSW
-を起動する必要があります。 Cypress
-では、[Plugin](https://docs.cypress.io/guides/tooling/plugins-guide) を使って Node.js
-のプロセスからプログラムを実行できます。
+`getServerSideProps()` 用のスタブを用意するためには、ブラウザの外で動く Node.js のプロセスから MSW を起動する必要があります。 Cypress では、[Plugin](https://docs.cypress.io/guides/tooling/plugins-guide) を使って Node.js のプロセスからプログラムを実行できます。
 
 > Plugins enable you to tap into the Node process running outside of the
 > browser.
 
-Plugin は plugins ディレクトリ以下に実装します。 初期状態では、およそ以下のような空っぽの plugins/index.js
-が用意されています。なお、本記事では筆者が TypeScript で書き直した plugins/index.ts を例として使います。
+Plugin は plugins ディレクトリ以下に実装します。 初期状態では、およそ以下のような空っぽの plugins/index.js が用意されています。なお、本記事では筆者が TypeScript で書き直した plugins/index.ts を例として使います。
 
 ```typescript
 /// <reference types="cypress" />
@@ -60,7 +53,7 @@ Plugin は plugins ディレクトリ以下に実装します。 初期状態で
  */
 module.exports = async (
   on: Cypress.PluginEvents,
-  config: Cypress.PluginConfigOptions,
+  config: Cypress.PluginConfigOptions
 ) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
@@ -78,7 +71,7 @@ import { setupServer } from "msw/node";
  */
 module.exports = async (
   on: Cypress.PluginEvents,
-  config: Cypress.PluginConfigOptions,
+  config: Cypress.PluginConfigOptions
 ) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
@@ -92,8 +85,7 @@ module.exports = async (
 
 Cypress の `cy.task()` を使うと、イベントを通してテストコードから Plugin（Node プロセス）へ値を渡すことができます。
 
-簡単な例を示します。`cy.task('greet', message)` は、Plugin で登録された `greet`
-イベントハンドラを呼び出し、`message` を引数として渡します。
+簡単な例を示します。`cy.task('greet', message)` は、Plugin で登録された `greet` イベントハンドラを呼び出し、`message` を引数として渡します。
 
 ```typescript
 // in spec
@@ -107,7 +99,7 @@ it("is a sample test", () => {
 // plugins/index.ts
 module.exports = async (
   on: Cypress.PluginEvents,
-  config: Cypress.PluginConfigOptions,
+  config: Cypress.PluginConfigOptions
 ) => {
   on("task", {
     greet(message: string) {
@@ -118,8 +110,7 @@ module.exports = async (
 };
 ```
 
-MSW のハンドラを登録するイベントを定義することにより、テストコードから任意のリクエストへスタブを用意できるようになります。MSW
-サーバーについては、spec が実行される前に起動し、終わったら停止するように書き換えました。
+MSW のハンドラを登録するイベントを定義することにより、テストコードから任意のリクエストへスタブを用意できるようになります。MSW サーバーについては、spec が実行される前に起動し、終わったら停止するように書き換えました。
 
 ```typescript
 /// <reference types="cypress" />
@@ -130,7 +121,7 @@ import { setupServer } from "msw/node";
  */
 module.exports = async (
   on: Cypress.PluginEvents,
-  config: Cypress.PluginConfigOptions,
+  config: Cypress.PluginConfigOptions
 ) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
@@ -154,7 +145,7 @@ module.exports = async (
       queries: {
         name: string;
         payload: Record<string, any>;
-      }[],
+      }[]
     ) => {
       // NOTE: `qraphql.query()` によるハンドラの生成をテストコード内で行うと傍受できない。
       // 生成された `GraphQLHandler` の `ctx`, `resolver` プロパティが空になってしまう。
@@ -170,8 +161,7 @@ module.exports = async (
 };
 ```
 
-（上記のコードで動作するのですが、コメントにある通り筆者が解決できなかった問題があります。 `graphql.query()`
-をテストコードから呼び出した場合、リクエストを捕まえられないのです。 この点について情報をお持ちの方がいたら教えてください。）
+（上記のコードで動作するのですが、コメントにある通り筆者が解決できなかった問題があります。 `graphql.query()` をテストコードから呼び出した場合、リクエストを捕まえられないのです。 この点について情報をお持ちの方がいたら教えてください。）
 
 以上の Plugin を実装することで、テストコードからハンドラを登録できるようになります。
 
@@ -199,8 +189,7 @@ describe('sample test', () => {
 
 # 今後の課題
 
-テストコード内にて `qraphql.query()` でハンドラを定義できず `payload`
-しか渡せない点を解決したいです。フィードバックお待ちしております。
+テストコード内にて `qraphql.query()` でハンドラを定義できず `payload` しか渡せない点を解決したいです。フィードバックお待ちしております。
 
 # 参考
 
