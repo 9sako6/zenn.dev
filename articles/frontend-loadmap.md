@@ -99,6 +99,10 @@ https://kentcdodds.com/blog/static-vs-unit-vs-integration-vs-e2e-tests
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro)
   - 公式の [API | Testing Library](https://testing-library.com/docs/react-testing-library/api) を読みました
 
+https://jestjs.io/ja/docs/api
+
+https://testing-library.com/docs/react-testing-library/intro/
+
 ### Mock Service Worker
 
 - API をモックするツールで、SSR, CSR どちらでも使えます
